@@ -8,6 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
+using Word = Microsoft.Office.Interop.Word; // пространство имен
+
+
 
 namespace test1
 {
@@ -66,7 +70,8 @@ namespace test1
                 {
 
 
-                    int Iid = comboBox1.SelectedIndex + 1;
+                    int Iid = comboBox2.SelectedIndex + 1;
+
 
                     if (tl.id == Iid)
                     {
@@ -98,7 +103,7 @@ namespace test1
 
 
                 
-            }
+        }
 
         private void Button2_Click(object sender, EventArgs e)
         {
@@ -124,13 +129,71 @@ namespace test1
 
                 MessageBox.Show("Данные сохранены");
 
+             
+                int IDPriema = 0;
+                var PrienPachientovs = db.PriemPacientov; //Находим айди талона 
+
+                foreach (PriemPacientov tl in PrienPachientovs)
+                {
+
+                    if (tl.Pacient == Pachient && tl.Doctor == Doctor && tl.Date_of_priema == DatePriema)
+                    {
+
+                        IDPriema = tl.id;
+
+                    }
+                }
+
+                object missing = Type.Missing;
+
+                Object Pa = "E:\\Durka.docx"; // Путь к шаблону 
+
+                Word.Application wordApp = new Word.Application();// Создаём объект приложения
+      
+                Word.Document wordDoc = new Word.Document();
+
+                wordDoc = wordApp.Documents.Add(ref Pa, ref missing, ref missing, ref missing);
+
+
+                Word.Bookmarks wBookmarks = wordDoc.Bookmarks;
+
+                wordDoc.Bookmarks["PACHIENT"].Range.Text = Pachient; // источник текста(может быть элемент массива)
+                wordDoc.Bookmarks["DOCTOR"].Range.Text = Doctor;
+                wordDoc.Bookmarks["SPECHIALNOST"].Range.Text = Spechialnost;
+                wordDoc.Bookmarks["DATEP"].Range.Text = Convert.ToString(DatePriema);
+
+                object mi = "E:\\VisualStudioWorks\\Шаблоны ворд для заполнения дурки\\Талон на прием к доктору "+Doctor+" № "+ IDPriema+ ".docx"; // путь куда и под каким именем будет сохраняться файл
+                string WayDoc = "E:\\VisualStudioWorks\\Шаблоны ворд для заполнения дурки\\Талон на прием к доктору " + Doctor + " № " + IDPriema + ".docx";
+                wordDoc.SaveAs(ref mi, ref missing, ref missing,
+
+                ref missing, ref missing, ref missing, ref missing,
+
+                    ref missing, ref missing, ref missing, ref missing,
+
+                            ref missing, ref missing, ref missing, ref missing,
+
+                                ref missing);
+
+
+                wordDoc.Close();
+
+                System.Diagnostics.Process myProcess = new Process();
+                myProcess.StartInfo.FileName = WayDoc; //имя своего файла(может быть exe файл)
+
+                myProcess.StartInfo.Verb = "Open";
+
+                myProcess.StartInfo.CreateNoWindow = false;
+
+                myProcess.Start();
+
+
                 this.Hide();
                 Form5 m = new Form5();
                 m.Show();
 
 
-
             }
         }
+
     }
     }
